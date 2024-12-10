@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
-import { Animated, Pressable } from 'react-native';
-import { useRef, useState } from 'react';
+import { Animated, Dimensions, Pressable } from 'react-native';
+import { useRef } from 'react';
 
 const Container = styled.View`
   flex: 1;
@@ -14,20 +14,46 @@ const Box = styled.View`
 `;
 const AnimatedBox = Animated.createAnimatedComponent(Box);
 
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 export default function Home() {
-  const [up, setUp] = useState(false);
-  const POSITION = useRef(new Animated.ValueXY({ x: 0, y: 300 })).current;
-  const toggleUp = () => setUp(prev => !prev);
-  const moveUp = () => {
-    Animated.timing(POSITION.y, {
-      toValue: up ? 300 : -300,
-      useNativeDriver: true,
-    }).start(toggleUp);
-  };
-  const rotation = POSITION.y.interpolate({
-    inputRange: [-300, 300],
-    outputRange: ['-360deg', '360deg'],
+  const POSITION = useRef(
+    new Animated.ValueXY({
+      x: -SCREEN_WIDTH / 2 + 100,
+      y: -SCREEN_HEIGHT / 2 + 100,
+    }),
+  ).current;
+  const topLeft = Animated.timing(POSITION, {
+    toValue: {
+      x: -SCREEN_WIDTH / 2 + 100,
+      y: -SCREEN_HEIGHT / 2 + 100,
+    },
+    useNativeDriver: true,
   });
+  const bottomLeft = Animated.timing(POSITION, {
+    toValue: {
+      x: -SCREEN_WIDTH / 2 + 100,
+      y: SCREEN_HEIGHT / 2 - 100,
+    },
+    useNativeDriver: true,
+  });
+  const bottomRight = Animated.timing(POSITION, {
+    toValue: {
+      x: SCREEN_WIDTH / 2 - 100,
+      y: SCREEN_HEIGHT / 2 - 100,
+    },
+    useNativeDriver: true,
+  });
+  const topRight = Animated.timing(POSITION, {
+    toValue: {
+      x: SCREEN_WIDTH / 2 - 100,
+      y: -SCREEN_HEIGHT / 2 + 100,
+    },
+    useNativeDriver: true,
+  });
+  const moveUp = () => {
+    Animated.loop(Animated.sequence([bottomLeft, bottomRight, topRight, topLeft])).start();
+  };
   const borderRadius = POSITION.y.interpolate({
     inputRange: [-300, 300],
     outputRange: [100, 0],
@@ -36,7 +62,6 @@ export default function Home() {
     inputRange: [-300, 300],
     outputRange: ['rgb(255,99,71)', 'rgb(71,166,255)'],
   });
-  POSITION.y.addListener(() => console.log(bgColor));
   return (
     <Container>
       <Pressable onPress={moveUp}>
@@ -44,7 +69,7 @@ export default function Home() {
           style={{
             borderRadius,
             backgroundColor: bgColor,
-            transform: [{ rotateY: rotation }, { translateY: POSITION.y }],
+            transform: [...POSITION.getTranslateTransform()],
           }}
         />
       </Pressable>
