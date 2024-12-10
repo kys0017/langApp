@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
-import { Animated, TouchableOpacity } from 'react-native';
+import { Animated, Easing, TouchableOpacity } from 'react-native';
+import { useRef, useState } from 'react';
 
 const Container = styled.View`
   flex: 1;
@@ -14,17 +15,18 @@ const Box = styled.View`
 const AnimatedBox = Animated.createAnimatedComponent(Box);
 
 export default function Home() {
-  const Y = new Animated.Value(0);
+  const [up, setUp] = useState(false);
+  const Y = useRef(new Animated.Value(0)).current;
+  const toggleUp = () => setUp(prev => !prev);
   const moveUp = () => {
-    Animated.spring(Y, {
-      toValue: -200,
-      bounciness: 50,
-      // tension: 1000,
-      // friction: 1,
+    Animated.timing(Y, {
+      toValue: up ? 200 : -200,
       useNativeDriver: true,
-    }).start();
+      easing: Easing.circle,
+    }).start(toggleUp);
   };
-  Y.addListener(() => console.log(Y));
+  Y.addListener(() => console.log('Animated State: ', Y));
+  console.log('Component State: ', Y);
   return (
     <Container>
       <TouchableOpacity onPress={moveUp}>
