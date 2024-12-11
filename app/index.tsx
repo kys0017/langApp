@@ -47,7 +47,7 @@ export default function Home() {
   });
   const secondScale = position.interpolate({
     inputRange: [-300, 0, 300],
-    outputRange: [-1, 0.7, 1],
+    outputRange: [1, 0.7, 1],
     extrapolate: 'clamp',
   });
   // Animations
