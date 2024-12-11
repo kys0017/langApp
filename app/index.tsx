@@ -35,8 +35,8 @@ export default function Home() {
       onPanResponderGrant: (_, {}) => {
         console.log('Touch Started');
         POSITION.setOffset({
-          x: POSITION.x._value,
-          y: POSITION.y._value,
+          x: (POSITION.x as any)._value,
+          y: (POSITION.y as any)._value,
         });
       },
       onPanResponderMove: (_, { dx, dy }) => {
