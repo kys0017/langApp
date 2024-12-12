@@ -1,7 +1,9 @@
 import styled from 'styled-components/native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Animated, PanResponder } from 'react-native';
+import icons from '@/icons';
+import { IconProps } from '@expo/vector-icons/build/createIconSet';
 
 const Container = styled.View`
   flex: 1;
@@ -83,34 +85,52 @@ export default function Home() {
       onPanResponderGrant: () => onPressIn.start(),
       onPanResponderRelease: (_, { dx }) => {
         if (dx < -250) {
-          goLeft.start();
+          goLeft.start(onDismiss);
         } else if (dx > 250) {
-          goRight.start();
+          goRight.start(onDismiss);
         } else {
           Animated.parallel([onPressOut, getCenter]).start();
         }
       },
     }),
   ).current;
+  // State
+  const [index, setIndex] = useState(0);
+  const onDismiss = () => {
+    scale.setValue(1);
+    position.setValue(0);
+    setIndex(prev => prev + 1);
+    // Animated.timing(position, { toValue: 0, useNativeDriver: true }).start();
+  };
   const closePress = () => {
-    goLeft.start();
+    goLeft.start(onDismiss);
   };
   const checkPress = () => {
-    goRight.start();
+    goRight.start(onDismiss);
   };
 
   return (
     <Container>
       <CardContainer>
         <AnimatedCard style={{ transform: [{ scale: secondScale }] }}>
-          <Ionicons name={'beer'} color="192a56" size={98} />
+          {/*<Text>Back Card</Text>*/}
+          <Ionicons
+            name={icons[index + 1] as unknown as IconProps<any>['name']}
+            color="192a56"
+            size={98}
+          />
         </AnimatedCard>
         <AnimatedCard
           {...panResponder.panHandlers}
           style={{
             transform: [{ scale }, { translateX: position }, { rotateZ: rotation }],
           }}>
-          <Ionicons name={'pizza'} color="192a56" size={98} />
+          {/*<Text>Front Card</Text>*/}
+          <Ionicons
+            name={icons[index] as unknown as IconProps<any>['name']}
+            color="192a56"
+            size={98}
+          />
         </AnimatedCard>
       </CardContainer>
       <BtnContainer>
